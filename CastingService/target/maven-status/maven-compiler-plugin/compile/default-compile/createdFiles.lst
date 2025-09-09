@@ -1,0 +1,11 @@
+com\micro\cast\controller\CastingController.class
+com\micro\cast\repository\CastingRepo.class
+com\micro\cast\repository\CastingRowMapper.class
+com\micro\cast\models\Casting.class
+com\micro\cast\CastingServiceApplication.class
+com\micro\cast\dto\CastingDto.class
+com\micro\cast\config\ApplicationConfig.class
+com\micro\cast\irepository\ICastingRepo.class
+com\micro\cast\dto\ProjectDto.class
+com\micro\cast\models\Project.class
+com\micro\cast\services\CastingService.class
