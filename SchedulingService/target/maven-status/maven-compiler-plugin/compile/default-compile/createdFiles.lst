@@ -1,2 +1,8 @@
-com\micro\schedule\controller\ScheduleController.class
+com\micro\schedule\irepo\IScheduleRepo.class
+com\micro\schedule\service\ScheduleService.class
 com\micro\schedule\ScheduleServiceApplication.class
+com\micro\schedule\controller\ScheduleController.class
+com\micro\schedule\model\Schedule.class
+com\micro\schedule\repo\ScheduleRepo.class
+com\micro\schedule\repo\ScheduleRowMapper.class
+com\micro\schedule\dto\ScheduleDto.class

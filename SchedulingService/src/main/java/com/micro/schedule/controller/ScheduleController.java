@@ -1,40 +1,44 @@
 package com.micro.schedule.controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-    
-@RequestMapping("/schedule")
+
+import com.micro.schedule.model.Schedule;
+import com.micro.schedule.service.ScheduleService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
-public class ScheduleController 
-{
+@RequestMapping("/schedules")
+public class ScheduleController {
 
-        /*
-     * http://localhost:4005/schedule/
-     */
-    @GetMapping(path = "/allschedules")
-    public String getAllSchedules() 
-    {
-        System.out.println("Hello from schedule controller!");
-        
-        return "Hello from schedule controller!";
+    @Autowired
+    private ScheduleService scheduleService;
+
+    @PostMapping("/add")
+    public String addSchedule(@RequestBody Schedule schedule) {
+        scheduleService.addSchedule(schedule);
+        return "Schedule added successfully!";
     }
 
- @GetMapping(path = "/schedule/{schedulename}")
-    public String getTeamByName(@PathVariable("schedulename") String schedulename) 
-    {
-        System.out.println("Hi!! " + "welcome " + schedulename + " to the Production!");
-       
-        return "Hi!! " + "welcome " + schedulename + " to the Production!";
-    }
-   @GetMapping(path = "/schedule")
-    public String getTeamByNameFromRequest(@RequestParam("projectname") String schedulename)
-    {
-        System.out.println("Hi!! " + "welcome " + schedulename
-         + " to the Production!");
-       
-        return "Hi!! " + "welcome " + schedulename+ " to the Production!";
+    @GetMapping("/all")
+    public List<Schedule> getAllSchedules() {
+        return scheduleService.getAllSchedules();
     }
 
+    @GetMapping("/{id}")
+    public Schedule getScheduleById(@PathVariable Long id) {
+        return scheduleService.getScheduleById(id);
+    }
+
+    @PutMapping("/update/{id}")
+    public String updateSchedule(@PathVariable Long id, @RequestBody Schedule schedule) {
+        int rows = scheduleService.updateSchedule(id, schedule);
+        return rows > 0 ? "Schedule updated successfully!" : "Schedule not found!";
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public String deleteSchedule(@PathVariable Long id) {
+        int rows = scheduleService.deleteSchedule(id);
+        return rows > 0 ? "Schedule deleted successfully!" : "Schedule not found!";
+    }
 }

@@ -9,14 +9,16 @@ import org.springframework.context.annotation.Configuration;
 public class GatewayConfig {
 
     @Bean
-    public RouteLocator routes(RouteLocatorBuilder builder)
-    {
+    public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
             .route("projectservice", r -> r.path("/projects/**")
                 .uri("lb://projectservice"))
             .route("castingservice", r -> r.path("/casting/**")
                 .uri("lb://castingservice"))
-           
+            .route("budgetservice", r -> r.path("/budgets/**")
+                .uri("lb://budgetservice"))
+            .route("scheduleservice", r -> r.path("/schedule/**")
+                .uri("lb://scheduleservice"))
             .build();
     }
 }

@@ -24,35 +24,35 @@ public class CastingController {
         this.castingService = castingService;
     }
 
-    // ✅ Get all castings
+    
     // http://localhost:4003/casting/all
     @GetMapping("/all")
     public List<CastingDto> getAllCastings() {
         return castingService.getAllCastings();
     }
 
-    // ✅ Get casting by Id
+    //  Get casting by Id
     // http://localhost:4003/casting/{castingId}
     @GetMapping("/{castingId}")
     public CastingDto getCastingById(@PathVariable String castingId) {
         return castingService.getCastingById(castingId);
     }
 
-    // ✅ Get casting by Actor Name
+    //  Get casting by Actor Name
     // http://localhost:4003/casting/actor/{actorName}
     @GetMapping("/actor/{actorName}")
     public CastingDto getCastingByActorName(@PathVariable String actorName) {
         return castingService.getCastingByActorName(actorName);
     }
 
-    // ✅ Add new casting
+    //  Add new casting
     // POST http://localhost:4003/casting
     @PostMapping
     public String addCasting(@RequestBody CastingDto castingDto) {
         return castingService.addCasting(castingDto);
     }
 
-    // ✅ Get total casting count
+    //  Get total casting count
     // http://localhost:4003/casting/count
     @GetMapping("/count")
     public Integer getCastingCount() {
