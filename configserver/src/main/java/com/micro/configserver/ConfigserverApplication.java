@@ -19,6 +19,7 @@ public class ConfigserverApplication {
 	else {
 		app.setAdditionalProfiles("git");
 	}
+	//app.setAdditionalProfiles("native");
 	app.run(args);
 		
 	}
