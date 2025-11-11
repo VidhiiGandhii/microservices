@@ -1,72 +1,95 @@
-package  com.micro.project.services;
-import java.util.ArrayList;
+package com.micro.project.services;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.micro.project.dto.ProjectDto;
+import com.micro.project.exceptions.InvalidProjectException;
+import com.micro.project.exceptions.ProjectAlreadyExistsException;
+import com.micro.project.exceptions.ProjectNotFoundException;
 import com.micro.project.irepository.IprojectRepo;
 import com.micro.project.models.Project;
 
-
-
-@Service(value="ProjectService")
+@Service
 public class ProjectService {
 
-    private final IprojectRepo _IprojectRepo;
-    private final ModelMapper _ModelMapper;
+    private final IprojectRepo _ProjectRepo;
+    private final ModelMapper _modelMapper;
+
     @Autowired
-    ProjectService(IprojectRepo projectRepo,ModelMapper modelMapper)
-    {
-        this._IprojectRepo=projectRepo;
-        this._ModelMapper=modelMapper;
-    }
-public List<ProjectDto> GetAllProjects(){
-    List<Project> projects= _IprojectRepo.GetAllProjects();
-    List<ProjectDto> projectDtos=new ArrayList<>();
-    for(Project p:projects){
-        ProjectDto dto=_ModelMapper.map(p, ProjectDto.class);
-        projectDtos.add(dto);
-
-    }
-    return projectDtos;
-}
-public ProjectDto GetProjectById(String ProjectId) 
-
-    {
-       Project Project=_IprojectRepo.GetProjectById(ProjectId);
-        return _ModelMapper.map(Project, ProjectDto.class);
+    public ProjectService(IprojectRepo projectRepo, ModelMapper modelMapper) {
+        this._ProjectRepo = projectRepo;
+        this._modelMapper = modelMapper;
     }
 
-    public String GetProjectTitleById(String ProjectId) 
-    {
-        return  _IprojectRepo.GetProjectTitleById(ProjectId);
+    public List<ProjectDto> GetAllProjects() {
+        List<Project> projects = _ProjectRepo.GetAllProjects();
+        // Convert List<Project> to List<ProjectDto>
+        return projects.stream()
+                .map(project -> _modelMapper.map(project, ProjectDto.class))
+                .collect(Collectors.toList());
     }
 
-    public String GetProjectIdByTitle(String ProjectTitle) 
-    {
-        String id = _IprojectRepo.GetProjectIdByTitle(ProjectTitle);
-        if (id != null) {
-            return id.toLowerCase();
+    public ProjectDto GetProjectById(String projectId) throws ProjectNotFoundException {
+        try {
+            Project project = _ProjectRepo.GetProjectById(projectId);
+            return _modelMapper.map(project, ProjectDto.class);
+        } catch (EmptyResultDataAccessException e) {
+            // CATCH the DB exception, THROW our custom exception
+            throw new ProjectNotFoundException("Project not found with ID: " + projectId);
         }
-        return null;
     }
 
-    public ProjectDto GetProjectByTitle(String ProjectTitle) 
-    {
-        Project Project = _IprojectRepo.GetProjectByTitle(ProjectTitle);
-        return _ModelMapper.map(Project, ProjectDto.class);
+    public String GetProjectTitleById(String projectId) throws ProjectNotFoundException {
+        try {
+            return _ProjectRepo.GetProjectTitleById(projectId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ProjectNotFoundException("Project not found with ID: " + projectId);
+        }
     }
 
-    
+    public String GetProjectIdByTitle(String projectTitle) throws ProjectNotFoundException {
+        try {
+            return _ProjectRepo.GetProjectIdByTitle(projectTitle);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ProjectNotFoundException("Project not found with title: " + projectTitle);
+        }
+    }
 
-    public ProjectDto AddProject(ProjectDto Projectdto) 
-    {
-        Project Project = _ModelMapper.map(Projectdto, Project.class);
-        _IprojectRepo.AddProject(Project);
+    public ProjectDto GetProjectByTitle(String projectTitle) throws ProjectNotFoundException {
+        try {
+            Project project = _ProjectRepo.GetProjectByTitle(projectTitle);
+            return _modelMapper.map(project, ProjectDto.class);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ProjectNotFoundException("Project not found with title: " + projectTitle);
+        }
+    }
 
-        return Projectdto;
+    public Project AddProject(ProjectDto projectDto) throws InvalidProjectException, ProjectAlreadyExistsException {
+        // 1. --- VALIDATION ---
+        if (projectDto.getProjecttitle() == null || projectDto.getProjecttitle().trim().isEmpty()) {
+            throw new InvalidProjectException("Bad request: Project title cannot be null or empty.");
+        }
+        if (projectDto.getEpisodes() <= 0) {
+            throw new InvalidProjectException("Bad request: Episodes must be greater than 0.");
+        }
+
+        // 2. --- "Innovative" Check (Duplicate Title) ---
+        try {
+            _ProjectRepo.GetProjectIdByTitle(projectDto.getProjecttitle());
+            // If the above line *succeeds*, it means the title already exists.
+            throw new ProjectAlreadyExistsException("Conflict: A project with title '" + projectDto.getProjecttitle() + "' already exists.");
+        } catch (EmptyResultDataAccessException e) {
+            // This is the "good" path. The title does not exist.
+        }
+
+        // 3. --- Save ---
+        Project project = _modelMapper.map(projectDto, Project.class);
+        return _ProjectRepo.AddProject(project);
     }
 }
